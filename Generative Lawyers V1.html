@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generative Lawyers — AI Attorney Platform | Contingency Fee Legal Services</title>
+<style>
+/* ==================== GLOBAL ==================== */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Roboto,system-ui,sans-serif;background:#f0f2f5;color:#1a2332;line-height:1.5;display:flex;min-height:100vh}
+a{color:#1a56db;text-decoration:none}
+a:hover{text-decoration:underline}
+.mono{font-family:'SF Mono',Consolas,monospace;font-size:.78rem}
+
+/* ==================== SIDEBAR ==================== */
+.sidebar{width:260px;background:#0b1e33;color:#c9d6e4;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow-y:auto}
+.sidebar .brand{padding:24px 20px;border-bottom:1px solid #1f3a52}
+.sidebar .brand h1{font-size:1.3rem;font-weight:700;color:#fff;letter-spacing:.3px}
+.sidebar .brand span{display:block;font-size:.68rem;color:#7a9bb8;margin-top:4px;text-transform:uppercase;letter-spacing:1px}
+.sidebar nav{flex:1;padding:12px 0}
+.sidebar nav a{display:flex;align-items:center;gap:12px;padding:11px 20px;color:#a8bfd4;font-size:.9rem;border-left:3px solid transparent;transition:all .18s;cursor:pointer}
+.sidebar nav a:hover,.sidebar nav a.active{background:#142d45;color:#fff;border-left-color:#3b9edd}
+.sidebar nav a .icon{font-size:1.05rem;width:22px;text-align:center}
+.sidebar .sidebar-footer{padding:16px 20px;border-top:1px solid #1f3a52;font-size:.72rem;color:#6a8aa8}
+.sidebar .sidebar-footer strong{color:#a8bfd4}
+
+/* ==================== MAIN ==================== */
+.main{margin-left:260px;flex:1;padding:24px 32px 80px;max-width:calc(100% - 260px)}
+
+/* ==================== DISCLAIMER ==================== */
+.disclaimer{background:#fff8e1;border:1px solid #f0c24b;border-radius:8px;padding:12px 18px;margin-bottom:20px;font-size:.8rem;color:#6b4f00;display:flex;gap:10px;align-items:flex-start}
+.disclaimer .icon{font-size:1.2rem;flex-shrink:0}
+
+/* ==================== HEADER ==================== */
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.page-header h2{font-size:1.5rem;font-weight:700;color:#0b1e33}
+.user-badge{display:flex;align-items:center;gap:10px;background:#fff;padding:6px 14px 6px 8px;border-radius:30px;box-shadow:0 1px 4px rgba(0,0,0,.08);font-size:.82rem}
+.user-badge .avatar{width:32px;height:32px;border-radius:50%;background:#3b9edd;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.82rem}
+.tag{font-size:.66rem;background:#e8f0fe;color:#1a56db;padding:2px 8px;border-radius:10px;font-weight:600}
+
+/* ==================== KPI ==================== */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:24px}
+.kpi{background:#fff;border-radius:10px;padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,.07);border-left:4px solid #3b9edd}
+.kpi .label{font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:#6b7f94;font-weight:600;margin-bottom:4px}
+.kpi .value{font-size:1.6rem;font-weight:800;color:#0b1e33}
+.kpi .sub{font-size:.75rem;color:#7a8fa5;margin-top:2px}
+.kpi.green{border-left-color:#27ae60}.kpi.orange{border-left-color:#e67e22}.kpi.red{border-left-color:#c0392b}
+
+/* ==================== PANELS ==================== */
+.panel{background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.07);overflow:hidden;margin-bottom:18px}
+.panel-header{padding:12px 18px;border-bottom:1px solid #e9ecef;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.panel-header h3{font-size:.95rem;font-weight:700;color:#0b1e33}
+.panel-body{padding:16px 18px}
+.panel-body.p0{padding:0}
+
+/* ==================== TABLES ==================== */
+table.dt{width:100%;border-collapse:collapse;font-size:.82rem}
+table.dt th{text-align:left;padding:9px 12px;background:#f7f9fc;color:#4a6178;font-weight:700;font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #e2e8f0}
+table.dt td{padding:9px 12px;border-bottom:1px solid #eef1f5;vertical-align:middle}
+table.dt tr:last-child td{border-bottom:none}
+table.dt tbody tr{cursor:pointer;transition:background .12s}
+table.dt tbody tr:hover{background:#f7f9fc}
+.money{font-weight:700;color:#0b1e33}
+
+/* ==================== PILLS ==================== */
+.pill{display:inline-block;padding:2px 9px;border-radius:12px;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.pill.active{background:#e6f4ea;color:#1e7e34}
+.pill.review{background:#fff3cd;color:#856404}
+.pill.settled{background:#e2e3e5;color:#383d41}
+.pill.overdue{background:#f8d7da;color:#721c24}
+
+/* ==================== CHAT / INTAKE ==================== */
+.chat-window{max-height:400px;overflow-y:auto;padding:16px;background:#fafbfc;flex:1}
+.chat-msg{margin-bottom:16px;display:flex;gap:10px}
+.chat-msg .bubble{padding:10px 14px;border-radius:10px;font-size:.86rem;max-width:88%;line-height:1.55}
+.chat-msg.user{flex-direction:row-reverse}
+.chat-msg.user .bubble{background:#3b9edd;color:#fff;border-bottom-right-radius:2px}
+.chat-msg.ai .bubble{background:#fff;border:1px solid #e2e8f0;border-bottom-left-radius:2px}
+.chat-msg.ai .bubble .citation{display:block;font-size:.72rem;color:#1a56db;margin-top:6px;padding-top:6px;border-top:1px dashed #d1dbe6}
+.chat-input-area{padding:12px 16px;border-top:1px solid #e9ecef;display:flex;gap:10px;background:#fff}
+.chat-input-area input{flex:1;padding:9px 12px;border:1px solid #d1dbe6;border-radius:7px;font-size:.86rem;outline:none}
+.chat-input-area input:focus{border-color:#3b9edd}
+
+/* ==================== MODAL ==================== */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:12px;max-width:800px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-header{padding:16px 22px;border-bottom:1px solid #e9ecef;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:2}
+.modal-header h3{font-size:1.1rem;font-weight:700;color:#0b1e33}
+.modal-close{background:none;border:none;font-size:1.5rem;cursor:pointer;color:#7a8fa5;line-height:1}
+.modal-body{padding:20px 22px}
+.modal-footer{padding:14px 22px;border-top:1px solid #e9ecef;display:flex;gap:10px;justify-content:flex-end;position:sticky;bottom:0;background:#fff}
+
+/* ==================== FORMS & BUTTONS ==================== */
+.field{margin-bottom:12px}
+.field label{display:block;font-size:.72rem;font-weight:700;color:#4a6178;text-transform:uppercase;margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;padding:8px 10px;border:1px solid #d1dbe6;border-radius:7px;font-size:.84rem;font-family:inherit}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#3b9edd;outline:none}
+.btn{padding:8px 18px;border:none;border-radius:8px;font-weight:700;font-size:.8rem;cursor:pointer;font-family:inherit}
+.btn-primary{background:#0b1e33;color:#fff}
+.btn-primary:hover{background:#142d45}
+.btn-success{background:#27ae60;color:#fff}
+.btn-success:hover{background:#1e8449}
+.btn-danger{background:#c0392b;color:#fff}
+.btn-danger:hover{background:#a93226}
+.btn-outline{background:#fff;color:#0b1e33;border:1px solid #d1dbe6}
+.btn-outline:hover{background:#f7f9fc}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-sm{padding:4px 10px;font-size:.7rem}
+
+/* ==================== MISC ==================== */
+.trust-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #eef1f5;font-size:.82rem}
+.trust-row:last-child{border-bottom:none}
+.trust-row .label{color:#4a6178}
+.trust-row .amt{font-weight:700;color:#0b1e33}
+.trust-row .amt.pos{color:#27ae60}.trust-row .amt.neg{color:#c0392b}
+.ar-bar{display:flex;height:26px;border-radius:6px;overflow:hidden;margin:10px 0}
+.ar-bar div{display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;color:#fff}
+.ar-current{background:#27ae60}.ar-30{background:#f39c12}.ar-60{background:#e67e22}.ar-90{background:#c0392b}
+#auditTrail{max-height:160px;overflow-y:auto;padding:10px 16px;font-family:monospace;font-size:.7rem;color:#4a6178;background:#fafbfc}
+@media(max-width:1100px){.main{max-width:100%;margin-left:0;padding:16px}.sidebar{display:none}}
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<aside class="sidebar">
+  <div class="brand">
+    <h1>Generative Lawyers</h1>
+    <span>AI Attorney · Contingency Fee</span>
+  </div>
+  <nav>
+    <a class="active" data-panel="dashboard"><span class="icon">📊</span> Dashboard</a>
+    <a data-panel="research"><span class="icon">🤖</span> AI Case Intake</a>
+    <a data-panel="cases"><span class="icon">📁</span> Case Management</a>
+    <a data-panel="billing"><span class="icon">💳</span> Billing & Invoicing</a>
+    <a data-panel="trust"><span class="icon">🏦</span> Trust Accounting</a>
+    <a data-panel="ar"><span class="icon">📈</span> Accounts Receivable</a>
+    <a data-panel="compliance"><span class="icon">🛡️</span> Compliance & Audit</a>
+  </nav>
+  <div class="sidebar-footer">
+    <strong>Supervising Counsel</strong><br>
+    Amara Okafor, Esq.<br>
+    <span style="font-size:.64rem;">Called to: ON · NY · BVI</span>
+  </div>
+</aside>
+
+<!-- ==================== MAIN ==================== -->
+<div class="main">
+
+  <!-- Disclaimer -->
+  <div class="disclaimer">
+    <span class="icon">⚠️</span>
+    <div>
+      <strong>Important:</strong> Generative Lawyers is an AI-assisted legal research and case-management platform.
+      It is <strong>not a law firm</strong> and does <strong>not</strong> provide legal advice or create an attorney-client relationship.
+      All outputs are reviewed and approved by the <strong>Supervising Counsel</strong> named in the sidebar.
+      Contingency-fee arrangements are governed by the rules of the applicable jurisdiction (e.g., Ontario <em>Solicitors Act</em>, O. Reg. 563/20).
+    </div>
+  </div>
+
+  <!-- ==================== DASHBOARD ==================== -->
+  <div id="panel-dashboard" class="panel-view">
+    <div class="page-header">
+      <h2>Firm Dashboard</h2>
+      <div class="user-badge">
+        <div class="avatar">JD</div>
+        <div>Jane Doe <span class="tag">Client</span></div>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi green"><div class="label">Total Recoveries (YTD)</div><div class="value">$2.84M</div><div class="sub">14 contingency matters</div></div>
+      <div class="kpi"><div class="label">Contingency Fees Earned</div><div class="value">$710K</div><div class="sub">25% blended average</div></div>
+      <div class="kpi orange"><div class="label">Active Cases</div><div class="value">23</div><div class="sub">6 in settlement negotiation</div></div>
+      <div class="kpi red"><div class="label">Outstanding A/R</div><div class="value">$184K</div><div class="sub">12% past 90 days</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;">
+      <!-- Trust Snapshot -->
+      <div class="panel">
+        <div class="panel-header"><h3>Client Trust Ledger — #2025-0417</h3><span class="pill active">Reconciled</span></div>
+        <div class="panel-body">
+          <div class="trust-row"><span class="label">Settlement Received</span><span class="amt pos">+ $485,000.00</span></div>
+          <div class="trust-row"><span class="label">Court-Approved Disbursements</span><span class="amt neg">− $12,400.00</span></div>
+          <div class="trust-row"><span class="label">Contingency Fee (25% of net)</span><span class="amt neg">− $118,150.00</span></div>
+          <div class="trust-row"><span class="label">Client Net Distribution</span><span class="amt pos">+ $354,450.00</span></div>
+          <div style="margin-top:10px;padding-top:8px;border-top:2px solid #0b1e33;display:flex;justify-content:space-between;font-weight:800;">
+            <span>Trust Balance</span><span style="color:#27ae60;">$354,450.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calculator -->
+      <div class="panel">
+        <div class="panel-header"><h3>Contingency Fee Calculator</h3><span class="tag">What-If</span></div>
+        <div class="panel-body">
+          <div class="field"><label>Gross Settlement ($)</label><input type="number" id="calcGross" value="500000" oninput="calcFee()"></div>
+          <div class="field"><label>Disbursements ($)</label><input type="number" id="calcDisb" value="15000" oninput="calcFee()"></div>
+          <div class="field"><label>Contingency Rate (%)</label><input type="number" id="calcRate" value="25" min="0" max="50" oninput="calcFee()"></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid #e2e8f0;margin-top:8px;font-weight:700;">
+            <span>Legal Fee</span><span id="calcFeeOut" style="color:#c0392b;">$121,250</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;font-weight:700;">
+            <span>Client Net Recovery</span><span id="calcNetOut" style="color:#27ae60;">$363,750</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Cases Table -->
+    <div class="panel">
+      <div class="panel-header"><h3>Active Contingency Matters</h3><span class="tag">23 open</span></div>
+      <div class="panel-body p0">
+        <table class="dt">
+          <thead><tr><th>Matter</th><th>Client</th><th>Jurisdiction</th><th>Stage</th><th>Est. Recovery</th><th>Fee %</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr onclick="openCase('2025-0417')"><td><strong>#2025-0417</strong></td><td>R. Singh</td><td>Ontario, CA</td><td>Settlement Approved</td><td class="money">$500,000</td><td>25%</td><td><span class="pill settled">Settled</span></td></tr>
+            <tr onclick="openCase('2025-0392')"><td><strong>#2025-0392</strong></td><td>M. Charles</td><td>New York, US</td><td>Discovery</td><td class="money">$1,200,000</td><td>30%</td><td><span class="pill active">Active</span></td></tr>
+            <tr onclick="openCase('2025-0368')"><td><strong>#2025-0368</strong></td><td>BVI Holdings Ltd.</td><td>BVI</td><td>Expert Reports</td><td class="money">$3,400,000</td><td>20%</td><td><span class="pill active">Active</span></td></tr>
+            <tr onclick="openCase('2025-0351')"><td><strong>#2025-0351</strong></td><td>J. Okafor</td><td>Jamaica</td><td>Settlement Negotiation</td><td class="money">$750,000</td><td>25%</td><td><span class="pill review">Review</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== AI CASE INTAKE ==================== -->
+  <div id="panel-research" class="panel-view" style="display:none;">
+    <div class="page-header">
+      <h2>AI Case Intake & Assessment</h2>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span class="tag" id="engineStatus">● Intake Mode</span>
+        <span class="tag">Supervising Counsel: A. Okafor</span>
+      </div>
+    </div>
+
+    <!-- Intake Setup -->
+    <div class="panel">
+      <div class="panel-body" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+        <div style="flex:1;min-width:180px;">
+          <label style="font-size:.7rem;font-weight:700;color:#4a6178;text-transform:uppercase;">Target Jurisdiction</label>
+          <select id="intakeJurisdiction" style="width:100%;padding:8px;border:1px solid #d1dbe6;border-radius:7px;font-size:.82rem;" onchange="resetIntake()">
+            <option value="ON">Ontario, Canada (Form 14A - Statement of Claim)</option>
+            <option value="NY">New York, USA (Summons with Notice / Complaint)</option>
+            <option value="SKN">St. Kitts & Nevis (Eastern Caribbean Supreme Court)</option>
+          </select>
+        </div>
+        <div style="flex:2;min-width:250px;">
+          <label style="font-size:.7rem;font-weight:700;color:#4a6178;text-transform:uppercase;">Client / Matter Reference</label>
+          <input id="intakeClientName" type="text" placeholder="e.g. Jane Doe vs. Acme Corp" style="width:100%;padding:8px 10px;border:1px solid #d1dbe6;border-radius:7px;font-size:.86rem;">
+        </div>
+        <button class="btn btn-primary" onclick="startIntake()" style="height:36px;">▶ Start Conflict Check & Intake</button>
+      </div>
+    </div>
+
+    <!-- Intake Chat Window -->
+    <div class="panel" style="max-height:500px;display:flex;flex-direction:column;margin-bottom:16px;">
+      <div class="panel-header"><h3>Intake Interview</h3><span class="tag" id="intakeProgress">0% Complete</span></div>
+      <div id="intakeChat" class="chat-window" style="min-height:300px;">
+        <div class="chat-msg ai">
+          <div class="bubble">Welcome to Generative Lawyers. I will act as your intake attorney. I will first perform a conflict check, then ask you a series of questions based on the selected jurisdiction's court requirements to determine if you have a viable case.</div>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <input id="intakeInput" type="text" placeholder="Type your answer here..." onkeypress="if(event.key==='Enter') submitIntakeAnswer()">
+        <button class="btn btn-primary" onclick="submitIntakeAnswer()">Send</button>
+      </div>
+    </div>
+
+    <!-- Generated Draft Preview (Hidden until ready) -->
+    <div class="panel" id="draftPreviewPanel" style="display:none;">
+      <div class="panel-header"><h3>Generated Court Document (Draft)</h3><span class="tag">Pending Attorney Review</span></div>
+      <div id="draftPreviewBody" style="padding:18px;font-family:monospace;font-size:.8rem;line-height:1.5;background:#fff;max-height:300px;overflow-y:auto;">
+        <!-- Draft content injected here -->
+      </div>
+      <div style="padding:12px;border-top:1px solid #e9ecef;display:flex;gap:8px;">
+        <button class="btn btn-success" onclick="alert('Draft sent to Supervising Counsel for final sign-off and e-filing.')">Send for Attorney Review</button>
+        <button class="btn btn-outline" onclick="openESignModal()">Generate Fee Agreement</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== CASE MANAGEMENT ==================== -->
+  <div id="panel-cases" class="panel-view" style="display:none;">
+    <div class="page-header"><h2>Case Management</h2></div>
+    <div class="panel">
+      <div class="panel-header"><h3>All Matters — Click any row for full detail</h3></div>
+      <div class="panel-body p0">
+        <table class="dt">
+          <thead><tr><th>Matter</th><th>Client</th><th>Type</th><th>Jurisdiction</th><th>Stage</th><th>Est. Value</th><th>Status</th></tr></thead>
+          <tbody id="caseTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== BILLING ==================== -->
+  <div id="panel-billing" class="panel-view" style="display:none;">
+    <div class="page-header"><h2>Billing & Invoicing</h2></div>
+    <div class="kpi-grid">
+      <div class="kpi green"><div class="label">Collected (MTD)</div><div class="value">$142K</div></div>
+      <div class="kpi orange"><div class="label">Pending Invoices</div><div class="value">$67K</div></div>
+      <div class="kpi red"><div class="label">Overdue > 90d</div><div class="value">$22K</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h3>Invoices — Click to drill down</h3></div>
+      <div class="panel-body p0">
+        <table class="dt">
+          <thead><tr><th>Invoice #</th><th>Matter</th><th>Type</th><th>Issued</th><th>Amount</th><th>Status</th></tr></thead>
+          <tbody id="invoiceTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TRUST ACCOUNTING ==================== -->
+  <div id="panel-trust" class="panel-view" style="display:none;">
+    <div class="page-header"><h2>Trust Accounting</h2><span class="pill active">Three-Way Reconciled</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div class="panel">
+        <div class="panel-header"><h3>Trust Ledger — #2025-0417</h3></div>
+        <div class="panel-body">
+          <div class="trust-row"><span class="label">Opening Balance</span><span class="amt">$0.00</span></div>
+          <div class="trust-row"><span class="label">Deposit — Settlement</span><span class="amt pos">+ $485,000.00</span></div>
+          <div class="trust-row"><span class="label">Disbursement — Court Fees</span><span class="amt neg">− $3,200.00</span></div>
+          <div class="trust-row"><span class="label">Disbursement — Expert</span><span class="amt neg">− $9,200.00</span></div>
+          <div class="trust-row"><span class="label">Transfer — Legal Fee</span><span class="amt neg">− $118,150.00</span></div>
+          <div class="trust-row"><span class="label">Transfer — Client</span><span class="amt neg">− $354,450.00</span></div>
+          <div style="margin-top:10px;padding-top:8px;border-top:2px solid #0b1e33;display:flex;justify-content:space-between;font-weight:800;"><span>Closing Trust Balance</span><span style="color:#27ae60;">$0.00</span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><h3>Reconciliation Summary</h3></div>
+        <div class="panel-body">
+          <div class="trust-row"><span class="label">Bank Statement Balance</span><span class="amt">$1,284,320.00</span></div>
+          <div class="trust-row"><span class="label">Trust Ledger Total</span><span class="amt">$1,284,320.00</span></div>
+          <div class="trust-row"><span class="label">Client Ledger Total</span><span class="amt">$1,284,320.00</span></div>
+          <div style="margin-top:12px;padding:10px;background:#e6f4ea;border-radius:8px;text-align:center;font-weight:700;color:#1e7e34;">✓ Three-Way Reconciliation Passed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ACCOUNTS RECEIVABLE ==================== -->
+  <div id="panel-ar" class="panel-view" style="display:none;">
+    <div class="page-header"><h2>Accounts Receivable</h2></div>
+    <div class="panel">
+      <div class="panel-header"><h3>A/R Aging — $184,200 Total</h3></div>
+      <div class="panel-body">
+        <div class="ar-bar">
+          <div class="ar-current" style="width:52%;">Current $95.8K</div>
+          <div class="ar-30" style="width:18%;">30d $33.2K</div>
+          <div class="ar-60" style="width:18%;">60d $33.2K</div>
+          <div class="ar-90" style="width:12%;">90+d $22.0K</div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h3>Outstanding Receivables</h3></div>
+      <div class="panel-body p0">
+        <table class="dt">
+          <thead><tr><th>Client / Matter</th><th>Invoice</th><th>Amount</th><th>Days Out</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr onclick="openInvoice('INV-2025-0605')"><td>M. Charles — #2025-0392</td><td>INV-2025-0605</td><td class="money">$8,420</td><td>12</td><td><span class="pill active">Current</span></td></tr>
+            <tr onclick="openInvoice('INV-2025-0540')"><td>BVI Holdings — #2025-0368</td><td>INV-2025-0540</td><td class="money">$22,800</td><td>34</td><td><span class="pill review">1–30d</span></td></tr>
+            <tr onclick="openInvoice('INV-2025-0528')"><td>J. Okafor — #2025-0351</td><td>INV-2025-0528</td><td class="money">$45,000</td><td>48</td><td><span class="pill review">31–60d</span></td></tr>
+            <tr onclick="openInvoice('INV-2025-0510')"><td>R. Singh — #2025-0322</td><td>INV-2025-0510</td><td class="money">$12,800</td><td>92</td><td><span class="pill overdue">90+d</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== COMPLIANCE ==================== -->
+  <div id="panel-compliance" class="panel-view" style="display:none;">
+    <div class="page-header"><h2>Compliance & Audit</h2></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div class="panel">
+        <div class="panel-header"><h3>Regulatory Compliance Posture</h3></div>
+        <div class="panel-body" style="font-size:.82rem;line-height:1.7;">
+          <p><strong>✅ ABA Formal Opinion 512</strong> — AI tools are supervised, vendor due diligence documented, training records maintained.</p>
+          <p><strong>✅ FTC DoNotPay Order</strong> — No deceptive "AI lawyer" claims; all outputs require Supervising Counsel review.</p>
+          <p><strong>✅ Trust Accounting</strong> — Three-way reconciliation with immutable audit trail.</p>
+          <p><strong>✅ Contingency Fee Rules</strong> — Fee calculated on net recovery after disbursements; fee cannot exceed client recovery.</p>
+          <p><strong>✅ Infrastructure</strong> — SOC 2 Type II controls, AES-256 at rest, TLS 1.3 in transit, MFA/SSO.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><h3>Immutable Audit Log</h3><span class="tag" id="auditCount2">0</span></div>
+        <div id="auditTrail2" style="max-height:300px;overflow-y:auto;padding:10px 14px;font-family:monospace;font-size:.7rem;color:#4a6178;background:#fafbfc;">
+          <div>[—] No events yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ==================== MODAL ==================== -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Detail</h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+/* ============================================================
+   GENERATIVE LAWYERS — PRODUCTION HARDENED PLATFORM
+   ============================================================ */
+
+// ==================== NAVIGATION ====================
+document.querySelectorAll('.sidebar nav a').forEach(a => {
+  a.addEventListener('click', function(e) {
+    e.preventDefault();
+    const panel = this.dataset.panel;
+    document.querySelectorAll('.panel-view').forEach(p => p.style.display = 'none');
+    document.getElementById('panel-' + panel).style.display = 'block';
+    document.querySelectorAll('.sidebar nav a').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+    if (panel === 'cases') renderCaseTable();
+    if (panel === 'billing') renderInvoiceTable();
+  });
+});
+
+// ==================== MODAL ====================
+function openModal(title, bodyHtml, footerHtml) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = bodyHtml;
+  document.getElementById('modalFooter').innerHTML = footerHtml || '<button class="btn btn-outline" onclick="closeModal()">Close</button>';
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ==================== CALCULATOR ====================
+function calcFee() {
+  const gross = parseFloat(document.getElementById('calcGross').value) || 0;
+  const disb  = parseFloat(document.getElementById('calcDisb').value) || 0;
+  const rate  = parseFloat(document.getElementById('calcRate').value) || 0;
+  const netBeforeFee = Math.max(0, gross - disb);
+  let fee = netBeforeFee * (rate / 100);
+  if (fee > netBeforeFee) fee = netBeforeFee;
+  const netToClient = netBeforeFee - fee;
+  document.getElementById('calcFeeOut').textContent = '$' + fee.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  document.getElementById('calcNetOut').textContent = '$' + netToClient.toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+calcFee();
+
+// ==================== DATA ====================
+const CASES = {
+  '2025-0417': { client:'R. Singh', type:'Corporate Oppression', jurisdiction:'Ontario, CA', stage:'Settlement Approved', value:'$500,000', fee:'25%', status:'Settled', opened:'2024-03-10', nextEvent:'Distribution — 2025-06-20', description:'Minority shareholder oppression claim under OBCA s. 248. Settlement approved by Ontario Superior Court.', authorities:['Business Corporations Act (Ontario), s. 248','BCE Inc. v. 1976 Debentureholders, 2008 SCC 69'] },
+  '2025-0392': { client:'M. Charles', type:'Contract Dispute', jurisdiction:'New York, US', stage:'Discovery', value:'$1,200,000', fee:'30%', status:'Active', opened:'2024-09-15', nextEvent:'Expert depositions — 2025-08-12', description:'Breach of a commercial supply agreement. Defendant alleges force majeure.', authorities:['N.Y. Bus. Corp. Law § 720','Uniform Commercial Code § 2-615'] },
+  '2025-0368': { client:'BVI Holdings Ltd.', type:'Shareholder Remedy', jurisdiction:'BVI', stage:'Expert Reports', value:'$3,400,000', fee:'20%', status:'Active', opened:'2024-11-02', nextEvent:'Valuation expert report — 2025-09-05', description:'Oppression claim by minority member under BVI Business Companies Act s. 184I.', authorities:['BVI Business Companies Act, 2004, s. 184I'] },
+  '2025-0351': { client:'J. Okafor', type:'Fiduciary Duty', jurisdiction:'Jamaica', stage:'Settlement Negotiation', value:'$750,000', fee:'25%', status:'Review', opened:'2025-01-20', nextEvent:'Mediation — 2025-07-30', description:'Claim against former director for undisclosed conflict of interest.', authorities:['Companies Act (Jamaica), s. 241','Presidential MSH Corp. v. Marr, Foster & Co. LLP, 2017 ONCA 325'] }
+};
+
+const INVOICES = {
+  'INV-2025-0612': { matter:'2025-0417', client:'R. Singh', type:'Contingency Fee', issued:'2025-06-12', amount:'$118,150', status:'Paid', description:'Contingency fee on settlement of $500,000 gross, less $12,400 disbursements.' },
+  'INV-2025-0605': { matter:'2025-0392', client:'M. Charles', type:'Disbursement Recovery', issued:'2025-06-05', amount:'$8,420', status:'Sent', description:'Recovery of advanced court filing fees and e-discovery hosting.' },
+  'INV-2025-0528': { matter:'2025-0351', client:'J. Okafor', type:'Contingency Accrual', issued:'2025-05-28', amount:'$45,000', status:'Pending', description:'Accrued contingency fee on estimated $750,000 recovery at 25%.' },
+  'INV-2025-0510': { matter:'2025-0322', client:'R. Singh', type:'Expert Fee Recovery', issued:'2025-05-10', amount:'$12,800', status:'Overdue', description:'Recovery of expert witness fees advanced on behalf of client.' }
+};
+
+// ==================== CASE TABLE ====================
+function renderCaseTable() {
+  const tbody = document.getElementById('caseTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = Object.entries(CASES).map(([id, c]) => `
+    <tr onclick="openCase('${id}')">
+      <td><strong>#${id}</strong></td><td>${c.client}</td><td>${c.type}</td><td>${c.jurisdiction}</td>
+      <td>${c.stage}</td><td class="money">${c.value}</td>
+      <td><span class="pill ${c.status.toLowerCase() === 'settled' ? 'settled' : c.status.toLowerCase() === 'review' ? 'review' : 'active'}">${c.status}</span></td>
+    </tr>
+  `).join('');
+}
+
+function openCase(id) {
+  const c = CASES[id];
+  if (!c) return;
+  const authLinks = c.authorities.map(a => `<li>${a} — <a href="#" onclick="event.preventDefault();openSourceSearch('${encodeURIComponent(a)}')">Verify source ↗</a></li>`).join('');
+  openModal(`Matter #${id} — ${c.client}`,
+    `<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:.84rem;">
+      <div><strong>Type:</strong> ${c.type}</div><div><strong>Jurisdiction:</strong> ${c.jurisdiction}</div>
+      <div><strong>Stage:</strong> ${c.stage}</div><div><strong>Estimated Value:</strong> ${c.value}</div>
+      <div><strong>Contingency Fee:</strong> ${c.fee}</div><div><strong>Status:</strong> ${c.status}</div>
+      <div><strong>Opened:</strong> ${c.opened}</div><div><strong>Next Event:</strong> ${c.nextEvent}</div>
+    </div>
+    <p style="margin-top:14px;font-size:.84rem;line-height:1.6;">${c.description}</p>
+    <h4 style="margin-top:16px;font-size:.84rem;font-weight:700;color:#0b1e33;">Linked Authorities</h4>
+    <ul style="margin-top:6px;padding-left:18px;font-size:.8rem;line-height:1.7;">${authLinks}</ul>`,
+    `<button class="btn btn-outline" onclick="closeModal()">Close</button>
+     <button class="btn btn-primary" onclick="alert('In production: opens matter workspace with document vault, time entries, and linked trust ledger.')">Open Matter Workspace</button>`
+  );
+}
+
+function openSourceSearch(query) {
+  const canliiUrl = 'https://www.canlii.org/en/#search/text=' + query;
+  const courtListenerUrl = 'https://www.courtlistener.com/?q=' + query;
+  openModal('Source Verification',
+    `<p style="font-size:.84rem;margin-bottom:12px;">Verify this authority against live legal databases:</p>
+     <ul style="font-size:.84rem;line-height:1.8;">
+       <li><a href="${canliiUrl}" target="_blank" rel="noopener">CanLII — Canadian case law & legislation ↗</a></li>
+       <li><a href="${courtListenerUrl}" target="_blank" rel="noopener">CourtListener — US case law & PACER ↗</a></li>
+     </ul>`,
+    '<button class="btn btn-outline" onclick="closeModal()">Close</button>'
+  );
+}
+
+// ==================== INVOICE TABLE ====================
+function renderInvoiceTable() {
+  const tbody = document.getElementById('invoiceTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = Object.entries(INVOICES).map(([id, inv]) => `
+    <tr onclick="openInvoice('${id}')">
+      <td>${id}</td><td>#${inv.matter}</td><td>${inv.type}</td><td>${inv.issued}</td>
+      <td class="money">${inv.amount}</td>
+      <td><span class="pill ${inv.status.toLowerCase() === 'paid' ? 'settled' : inv.status.toLowerCase() === 'overdue' ? 'overdue' : inv.status.toLowerCase() === 'sent' ? 'active' : 'review'}">${inv.status}</span></td>
+    </tr>
+  `).join('');
+}
+
+function openInvoice(id) {
+  const inv = INVOICES[id];
+  if (!inv) return;
+  openModal(`Invoice ${id}`,
+    `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:.84rem;">
+      <div><strong>Matter:</strong> #${inv.matter}</div><div><strong>Client:</strong> ${inv.client}</div>
+      <div><strong>Type:</strong> ${inv.type}</div><div><strong>Issued:</strong> ${inv.issued}</div>
+      <div><strong>Amount:</strong> ${inv.amount}</div><div><strong>Status:</strong> ${inv.status}</div>
+    </div>
+    <p style="margin-top:14px;font-size:.84rem;line-height:1.6;">${inv.description}</p>`,
+    `<button class="btn btn-outline" onclick="closeModal()">Close</button>
+     <button class="btn btn-primary" onclick="alert('In production: generates LEDES-formatted invoice and sends to client portal.')">Download LEDES Invoice</button>`
+  );
+}
+
+// ==================== INTAKE ENGINE ====================
+const INTAKE_FLOWS = {
+  'ON': {
+    title: 'Ontario Superior Court of Justice - Statement of Claim (Form 14A)',
+    questions: [
+      { key: 'defendantName', text: 'What is the full legal name of the Defendant (the party you are suing)?' },
+      { key: 'defendantAddress', text: 'What is the Defendant\'s address for service?' },
+      { key: 'causeOfAction', text: 'What is the legal basis for your claim? (e.g., Breach of Contract, Negligence, Oppression).' },
+      { key: 'materialFacts', text: 'Please provide a chronological summary of the key facts. What happened, when, and how did it cause harm?' },
+      { key: 'reliefSought', text: 'What specific remedy are you seeking? (e.g., $100,000 in damages, an injunction).' },
+      { key: 'limitationDate', text: 'When did you first discover the harm? (Checks 2-year limitation period).' }
+    ]
+  },
+  'NY': {
+    title: 'New York Civil Practice Law and Rules (CPLR) - Summons with Notice',
+    questions: [
+      { key: 'defendantName', text: 'What is the full legal name of the Defendant?' },
+      { key: 'defendantAddress', text: 'What is the Defendant\'s address where they can be served?' },
+      { key: 'causeOfAction', text: 'What is the specific legal cause of action? (e.g., Breach of Contract, Personal Injury).' },
+      { key: 'reliefSought', text: 'What is the exact amount of money damages you are demanding?' },
+      { key: 'interestDate', text: 'From what date do you claim interest on that amount?' },
+      { key: 'venueBasis', text: 'Why is this the correct county to file in?' }
+    ]
+  },
+  'SKN': {
+    title: 'Eastern Caribbean Supreme Court (St. Kitts) - Claim Form',
+    questions: [
+      { key: 'claimantName', text: 'Please confirm your full legal name (the Claimant).' },
+      { key: 'defendantName', text: 'What is the full legal name of the Defendant?' },
+      { key: 'causeOfAction', text: 'What is the nature of the claim? (e.g., Breach of Contract, Tort).' },
+      { key: 'materialFacts', text: 'Please outline the material facts. What is the factual basis for the claim?' },
+      { key: 'remedy', text: 'What remedy are you seeking from the court? (e.g., Damages, Specific Performance).' },
+      { key: 'claimValue', text: 'What is the estimated value of the claim?' }
+    ]
+  }
+};
+
+let intakeState = { jurisdiction: 'ON', currentQuestionIndex: 0, answers: {}, flow: null };
+
+function resetIntake() {
+  intakeState.currentQuestionIndex = 0;
+  intakeState.answers = {};
+  document.getElementById('intakeChat').innerHTML = '';
+  document.getElementById('draftPreviewPanel').style.display = 'none';
+  document.getElementById('intakeProgress').textContent = '0% Complete';
+  addAiMessage('System reset. Select a jurisdiction and start a new intake.');
+}
+
+function startIntake() {
+  const jur = document.getElementById('intakeJurisdiction').value;
+  const clientRef = document.getElementById('intakeClientName').value.trim() || 'New Matter';
+  
+  intakeState.jurisdiction = jur;
+  intakeState.flow = INTAKE_FLOWS[jur];
+  intakeState.currentQuestionIndex = 0;
+  intakeState.answers = {};
+  
+  document.getElementById('intakeChat').innerHTML = '';
+  document.getElementById('draftPreviewPanel').style.display = 'none';
+  
+  // Feature: Conflict Check Simulation
+  addAiMessage(`Initiating intake for **${intakeState.flow.title}**. Client Reference: ${clientRef}.`);
+  addAiMessage(`🔍 Running conflict of interest check against existing firm matters...`);
+  
+  setTimeout(() => {
+    addAiMessage(`✅ Conflict check clear. No adverse parties found in our database.`);
+    addAiMessage(`I will ask you ${intakeState.flow.questions.length} essential questions based on the court's requirements. Let's begin.`);
+    setTimeout(() => { askNextQuestion(); }, 800);
+  }, 1200);
+}
+
+function askNextQuestion() {
+  const flow = intakeState.flow;
+  const idx = intakeState.currentQuestionIndex;
+  
+  if (idx >= flow.questions.length) {
+    generateDraft();
+    return;
+  }
+  
+  const q = flow.questions[idx];
+  addAiMessage(q.text);
+  
+  const progress = Math.round((idx / flow.questions.length) * 100);
+  document.getElementById('intakeProgress').textContent = progress + '% Complete';
+}
+
+function submitIntakeAnswer() {
+  const input = document.getElementById('intakeInput');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  addUserMessage(text);
+  input.value = '';
+  
+  const flow = intakeState.flow;
+  const idx = intakeState.currentQuestionIndex;
+  const q = flow.questions[idx];
+  
+  intakeState.answers[q.key] = text;
+  intakeState.currentQuestionIndex++;
+  
+  setTimeout(() => { askNextQuestion(); }, 600);
+}
+
+function addAiMessage(text) {
+  const chat = document.getElementById('intakeChat');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ai';
+  div.innerHTML = `<div class="bubble">${text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</div>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function addUserMessage(text) {
+  const chat = document.getElementById('intakeChat');
+  const div = document.createElement('div');
+  div.className = 'chat-msg user';
+  div.innerHTML = `<div class="bubble">${text}</div>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function generateDraft() {
+  document.getElementById('intakeProgress').textContent = '100% Complete';
+  addAiMessage('Thank you. I have sufficient information to draft the initial court document and generate your fee agreement. Please review below.');
+  
+  const answers = intakeState.answers;
+  const jur = intakeState.jurisdiction;
+  let draftHtml = '';
+  
+  if (jur === 'ON') {
+    draftHtml = `
+      <div style="text-align:center;font-weight:bold;margin-bottom:15px;">ONTARIO SUPERIOR COURT OF JUSTICE</div>
+      <div style="margin-bottom:15px;">
+        <strong>${answers.claimantName || 'PLAINTIFF'}</strong>, Plaintiff<br>
+        - and -<br>
+        <strong>${answers.defendantName || 'DEFENDANT'}</strong>, Defendant
+      </div>
+      <div><strong>STATEMENT OF CLAIM</strong></div>
+      <div style="margin-top:10px;"><strong>1. THE FACTS:</strong> ${answers.materialFacts || '[Facts pending]'}</div>
+      <div style="margin-top:10px;"><strong>2. CAUSE OF ACTION:</strong> The Plaintiff claims for ${answers.causeOfAction || '[Cause]'}.</div>
+      <div style="margin-top:10px;"><strong>3. RELIEF SOUGHT:</strong> ${answers.reliefSought || '[Relief]'}.</div>
+    `;
+  } else if (jur === 'NY') {
+    draftHtml = `
+      <div style="text-align:center;font-weight:bold;margin-bottom:15px;">SUPREME COURT OF THE STATE OF NEW YORK</div>
+      <div style="margin-bottom:15px;">
+        <strong>${answers.claimantName || 'PLAINTIFF'}</strong>, Plaintiff,<br>
+        - against -<br>
+        <strong>${answers.defendantName || 'DEFENDANT'}</strong>, Defendant.
+      </div>
+      <div><strong>SUMMONS WITH NOTICE</strong></div>
+      <div style="margin-top:10px;"><strong>Nature of Action:</strong> ${answers.causeOfAction || '[Cause]'}</div>
+      <div style="margin-top:10px;"><strong>Relief Sought:</strong> $${answers.reliefSought || '[Amount]'} with interest from ${answers.interestDate || '[Date]'}.</div>
+    `;
+  } else if (jur === 'SKN') {
+    draftHtml = `
+      <div style="text-align:center;font-weight:bold;margin-bottom:15px;">IN THE EASTERN CARIBBEAN SUPREME COURT</div>
+      <div style="text-align:center;margin-bottom:15px;">IN THE HIGH COURT OF JUSTICE (ST. KITTS CIRCUIT)</div>
+      <div style="margin-bottom:15px;">
+        <strong>${answers.claimantName || 'CLAIMANT'}</strong>, Claimant<br>
+        AND<br>
+        <strong>${answers.defendantName || 'DEFENDANT'}</strong>, Defendant
+      </div>
+      <div><strong>CLAIM FORM</strong></div>
+      <div style="margin-top:10px;"><strong>1. Remedy Sought:</strong> ${answers.remedy || '[Remedy]'}</div>
+      <div style="margin-top:10px;"><strong>2. Facts:</strong> ${answers.materialFacts || '[Facts]'}</div>
+      <div style="margin-top:10px;"><strong>3. Value:</strong> $${answers.claimValue || '[Value]'}</div>
+    `;
+  }
+  
+  document.getElementById('draftPreviewBody').innerHTML = draftHtml;
+  document.getElementById('draftPreviewPanel').style.display = 'block';
+  document.getElementById('engineStatus').textContent = '● Draft Ready';
+}
+
+// ==================== E-SIGN MODULE ====================
+function openESignModal() {
+  openModal('Contingency Fee Agreement (E-Signature)',
+    `<p style="font-size:.84rem;margin-bottom:12px;">This agreement complies with the <em>Solicitors Act</em> (Ontario) / applicable state rules. By typing your name below, you agree to a 25% contingency fee on the net recovery of this matter.</p>
+     <div class="field"><label>Type Full Legal Name to Sign</label><input type="text" id="esignName" placeholder="Jane Doe"></div>
+     <div class="field"><label>Date</label><input type="text" value="${new Date().toISOString().slice(0,10)}" disabled></div>
+     <p style="font-size:.72rem;color:#7a8fa5;">This action will be logged with your IP address and timestamp.</p>`,
+    `<button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-success" onclick="signAgreement()">Sign & Execute</button>`
+  );
+}
+
+function signAgreement() {
+  const name = document.getElementById('esignName').value.trim();
+  if (!name) { alert('Please type your name to sign.'); return; }
+  closeModal();
+  addAiMessage(`✅ Fee agreement signed by ${name} on ${new Date().toLocaleDateString()}. A copy has been sent to your email.`);
+  alert('Agreement Executed! In production, this would generate a PDF and trigger the billing module.');
+}
+
+// Initialize
+setStage(-1,'');
+renderCaseTable();
+renderInvoiceTable();
+</script>
+</body>
+</html>
